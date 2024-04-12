@@ -7,7 +7,7 @@ using UnityEngine;
 public class Teams
 {
     public string teamName;
-    public string[] playerPucks;
+    public List<string> playerPucks;
     public int score;
 
     public Teams(string name)
@@ -44,24 +44,35 @@ public class DataCollector : MonoBehaviour
         string[] splitMsg = msg.Split('/');
         string currentTeamName = splitMsg[0];
         string currentPuck = splitMsg[1];
-        Debug.Log($"Team name: {currentTeamName} - Puck: {currentPuck}");
-        try{
-            foreach (var team in TeamList)
-            {
-                if (currentTeamName != team.teamName ||team.playerPucks.Length == maxPucks / 2) continue;
-                foreach (var puck in team.playerPucks)
-                {
-                    if (currentPuck == puck) continue;
-                    team.score += 1;
-                    team.playerPucks[team.playerPucks.Length - 1] = currentPuck;
-                    Debug.Log("Added score!");
-                    registeredPucks++;
-                }
-            }
-        }
-        catch (Exception e)
+        //Debug.Log($"Team name: {currentTeamName} - Puck: {currentPuck}");
+        foreach (var team in TeamList)
         {
-            Debug.Log(e);
+            //Debug.Log($"Saved team name: {team.teamName} / Puck's team name: {currentTeamName}");
+            //Debug.Log(!String.Equals(team.teamName, currentTeamName));
+            if (!String.Equals(team.teamName, currentTeamName) || team.playerPucks.Count == maxPucks / 2) { 
+                //Debug.Log("Not part of current team"); 
+                continue; 
+            }
+
+            // First puck of the team
+            if (team.playerPucks.Count == 0)
+            {
+                Debug.Log("First puck has been registered!");
+                team.score += 1;
+                team.playerPucks.Add(currentPuck);
+                Debug.Log("Added score!");
+            }
+
+            // Every puck after
+            foreach (var puck in team.playerPucks)
+            {
+                //Debug.Log($"Puck is part of team {team.teamName}");
+                if (currentPuck == puck) { Debug.Log("Already registered puck"); continue; }
+                team.score += 1;
+                team.playerPucks.Add(currentPuck);
+                Debug.Log("Added score!");
+                registeredPucks++;
+            }
         }
         
         if (registeredPucks == maxPucks)
@@ -76,7 +87,7 @@ public class DataCollector : MonoBehaviour
         {
             ScoresList.Add(new SavedScores(currentRound, team.score, team.teamName));
             team.score = 0;
-            team.playerPucks = new string[0];
+            team.playerPucks.Clear();
         }
         currentRound++;
     }

@@ -20,6 +20,8 @@ public class QRCodeReader : MonoBehaviour
     private bool logAvailableWebcams;
     [SerializeField]
     private int selectedWebcamIndex;
+    [SerializeField]
+    private RenderTexture renderTexture;
 
     private WebCamTexture camTexture;
     private Color32[] cameraColorData;
@@ -57,6 +59,7 @@ public class QRCodeReader : MonoBehaviour
     private void OnEnable()
     {
         PlayWebcamTexture();
+        DataCollector = DataCollector.GetComponent<DataCollector>();
     }
 
     private void OnDisable()
@@ -73,25 +76,16 @@ public class QRCodeReader : MonoBehaviour
         {
             // decoding from camera image
             camTexture.GetPixels32(cameraColorData); // -> performance heavy method 
-
-            //Texture2D tx2d = GetTexture2dFromWebcam(camTexture);
-            //LuminanceSource luminanceSource = new RGBLuminanceSource(tx2d.GetRawTextureData(), camTexture.width, camTexture.height);
-            //Destroy(tx2d);
-            //Binarizer binarizer = new HybridBinarizer(luminanceSource).createBinarizer(luminanceSource);
-            //BinaryBitmap bitmap = new (binarizer);
+            Graphics.Blit(camTexture, renderTexture);
 
             result = barcodeReader.DecodeMultiple(cameraColorData, width, height); // -> performance heavy method
-            //result = multiReader.decodeMultiple(bitmap); // -> performance heavy method
+
+            DataCollector.screenWidth = camTexture.width;
+            DataCollector.screenHeight = camTexture.height;
 
             if (result != null)
             {
-                Debug.Log($"Found something! {result}");
-                //lastResult = result.Text + " " + result.BarcodeFormat;
-                //print(lastResult);
-                DataCollector collector = DataCollector.GetComponent<DataCollector>();
-                collector.screenWidth = width;
-                collector.screenHeight = height;
-                collector.incomingMultipleQRMessages(result);
+                DataCollector.incomingMultipleQRMessages(result, width, height);
             }
         }
     }
@@ -99,9 +93,9 @@ public class QRCodeReader : MonoBehaviour
     private void OnGUI()
     {
         // show camera image on screen
-        GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
+        //GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
         // show decoded text on screen
-        GUI.TextField(new Rect(10, 10, 256, 25), lastResult);
+        //GUI.TextField(new Rect(10, 10, 256, 25), lastResult);
     }
 
     private void OnDestroy()
@@ -125,18 +119,16 @@ public class QRCodeReader : MonoBehaviour
     {
         string selectedWebcamDeviceName = WebCamTexture.devices[selectedWebcamIndex].name;
         camTexture = new WebCamTexture(selectedWebcamDeviceName);
-        camTexture.requestedHeight = Screen.height;
-        camTexture.requestedWidth = Screen.width;
     }
  
     private void PlayWebcamTexture()
     {
         if (camTexture != null)
         {
-            Debug.Log(camTexture.deviceName);
             camTexture.Play();
             width = camTexture.width;
             height = camTexture.height;
+            //Debug.Log($"camTexture width: {camTexture.width} - height: {camTexture.height}");
         }
     }
 

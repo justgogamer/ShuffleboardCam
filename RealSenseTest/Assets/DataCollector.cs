@@ -61,6 +61,7 @@ public class DataCollector : MonoBehaviour
     public GameObject gameFieldObj;
     public float positionCorrection = 500;
     public float posYOffset;
+    public float posXOffset;
     public TeamOrganizer teamOrganizer;
 
     [Header("Point Ranges")]
@@ -124,7 +125,7 @@ public class DataCollector : MonoBehaviour
 
     public void CreatePuck(string currentPuck, Result result, Teams team)
     {
-        Puck newPuck = new Puck(currentPuck, (result.ResultPoints[0].X - positionCorrection), -(result.ResultPoints[0].Y - positionCorrection) + posYOffset);
+        Puck newPuck = new Puck(currentPuck, (result.ResultPoints[0].X - positionCorrection) + posXOffset, -(result.ResultPoints[0].Y - positionCorrection) + posYOffset);
         GameObject newPuckObj = Instantiate(puckPrefab, gameFieldObj.transform);
         newPuck.puckObj = newPuckObj;
         team.playerPucks.Add(newPuck);
@@ -146,7 +147,7 @@ public class DataCollector : MonoBehaviour
 
     public void CheckPosition(Puck puck, ZXing.Result result, Teams team)
     {
-        Vector2 resultPos = new Vector2((result.ResultPoints[0].X - positionCorrection), -(result.ResultPoints[0].Y - positionCorrection)+posYOffset);
+        Vector2 resultPos = new Vector2((result.ResultPoints[0].X - positionCorrection) + posXOffset, -(result.ResultPoints[0].Y - positionCorrection)+posYOffset);
         if (puck.puckPos == resultPos) return;
         puck.puckPos = resultPos;
         puck.puckObj.transform.position = new Vector3(resultPos.x, resultPos.y, puck.puckObj.transform.position.z);

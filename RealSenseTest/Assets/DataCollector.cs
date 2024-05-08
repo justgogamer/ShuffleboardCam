@@ -25,6 +25,7 @@ public class Puck
     public Vector2 puckPos;
     public int value;
     public GameObject puckObj;
+    public string origin;
 
     public Puck(string id, float posX, float posY)
     {
@@ -63,18 +64,26 @@ public class DataCollector : MonoBehaviour
     public float posYOffset;
     public float posXOffset;
     public TeamOrganizer teamOrganizer;
-
-    [Header("Point Ranges")]
-    public RectTransform footageArea;
-    public float pointArea1;
-    public float pointArea2;
-    public float pointArea3;
-    public float pointArea4;
+    public bool isCalibrating = false;
+    public bool isPaused = false;
+    public CalibratePuckPosition calibratePuckPosition;
+    public GameObject mainCamera;
 
     public void incomingMultipleQRMessages(ZXing.Result[] results, int width, int height)
     {
         screenWidth = width; screenHeight = height;
-        Debug.Log(width);
+
+        if (isCalibrating)
+        {
+            calibratePuckPosition.CalibratingPuckPos(results);
+            return;
+        }
+
+        if (isPaused)
+        {
+            return;
+        }
+
         foreach (var result in results)
         {
             string msg = result.Text;
@@ -147,10 +156,13 @@ public class DataCollector : MonoBehaviour
 
     public void CheckPosition(Puck puck, ZXing.Result result, Teams team)
     {
-        Vector2 resultPos = new Vector2((result.ResultPoints[0].X - positionCorrection) + posXOffset, -(result.ResultPoints[0].Y - positionCorrection)+posYOffset);
-        if (puck.puckPos == resultPos) return;
-        puck.puckPos = resultPos;
-        puck.puckObj.transform.position = new Vector3(resultPos.x, resultPos.y, puck.puckObj.transform.position.z);
+        Vector2 resultPos = new Vector2(result.ResultPoints[0].X, result.ResultPoints[0].Y);
+        float xDistanceToCenter = Vector2.Distance(resultPos, Vector2.zero);
+        float correctionFactor = Mathf.Clamp01(xDistanceToCenter / (Screen.width / 2f));
+        Vector2 correctedPos = new Vector2(resultPos.x + posXOffset, -(resultPos.y + posYOffset)) + new Vector2(1,0) * correctionFactor;
+        if (puck.puckPos == correctedPos) return;
+        puck.puckPos = correctedPos;
+        puck.puckObj.transform.position = new Vector3(correctedPos.x, correctedPos.y, puck.puckObj.transform.position.z);
         SetPointValue(puck, team);
     }
 
@@ -168,5 +180,30 @@ public class DataCollector : MonoBehaviour
         teamOrganizer.SendScoresToUI();
     }
 
+    public void ToggleCalibrating()
+    {
+        isCalibrating = !isCalibrating;
+        Debug.Log("Toggled calibrating!");
+    }
 
+    public void ApplyCorrection(float[] correction)
+    {
+        positionCorrection = correction[0];
+        posXOffset = correction[1];
+        posYOffset = correction[2];
+        isCalibrating = false;
+    }
+
+    public void RefreshGame()
+    {
+        foreach (Teams team in TeamList)
+        {
+            foreach(Puck puck in team.playerPucks)
+            {
+                Destroy(puck.puckObj);
+            }
+            team.playerPucks.Clear();
+            team.score = 0;
+        }
+    }
 }

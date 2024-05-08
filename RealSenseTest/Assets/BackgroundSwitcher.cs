@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BackgroundSwitcher : MonoBehaviour
 {
-    [SerializeField] private GameObject normalBackground;
-    [SerializeField] private GameObject videoBackground;
+    public GameObject normalBackground;
+    public GameObject videoBackground;
 
     public void ToggleBackground()
     {

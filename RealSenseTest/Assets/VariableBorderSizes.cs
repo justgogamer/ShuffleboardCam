@@ -15,7 +15,7 @@ public class VariableBorderSizes : MonoBehaviour
     public Transform sideBorderTrans;
     public Transform topBorderTrans;
     public Transform bottomBorderTrans;
-    public Transform gameFieldTrans;
+    public Transform valueAreaBoardTrans;
 
     public void ChangeAreaSize(BorderAreas area, float sizeChange)
     {
@@ -24,21 +24,22 @@ public class VariableBorderSizes : MonoBehaviour
             case BorderAreas.Side:
                 sideBorderTrans.localScale += new Vector3(sizeChange, 0, 0);
                 sideBorderTrans.position += new Vector3(sizeChange / 2, 0, 0);
+                // sizeChange / total size valuefields (?)
                 float toGameFieldValues = sizeChange / 1125;
-                gameFieldTrans.localScale -= new Vector3(toGameFieldValues, 0, 0);
-                gameFieldTrans.position += new Vector3(sizeChange, 0, 0);
+                valueAreaBoardTrans.localScale -= new Vector3(toGameFieldValues, 0, 0);
+                valueAreaBoardTrans.position += new Vector3(sizeChange / 2, 0, 0);
                 break;
             case BorderAreas.Top:
                 topBorderTrans.localScale += new Vector3(sizeChange, 0, 0);
-                topBorderTrans.position += new Vector3(sizeChange / 2, 0, 0);
-                gameFieldTrans.localScale -= new Vector3(0, sizeChange, 0);
-                gameFieldTrans.position -= new Vector3(0, sizeChange, 0);
+                topBorderTrans.position += new Vector3(0, sizeChange / 2, 0);
+                valueAreaBoardTrans.localScale -= new Vector3(0, sizeChange, 0);
+                valueAreaBoardTrans.position -= new Vector3(0, sizeChange / 2, 0);
                 break;
             case BorderAreas.Bottom:
                 bottomBorderTrans.localScale += new Vector3(sizeChange, 0, 0);
-                bottomBorderTrans.position += new Vector3(sizeChange / 2, 0, 0);
-                gameFieldTrans.localScale -= new Vector3(0, sizeChange, 0);
-                gameFieldTrans.position += new Vector3(0, sizeChange, 0);
+                bottomBorderTrans.position += new Vector3(0, sizeChange / 2, 0);
+                valueAreaBoardTrans.localScale -= new Vector3(0, sizeChange, 0);
+                valueAreaBoardTrans.position += new Vector3(0, sizeChange / 2, 0);
                 break;
         }
     }

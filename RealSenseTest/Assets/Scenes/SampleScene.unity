@@ -248,6 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 3
+  middleX: 0
 --- !u!114 &46108622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -758,6 +759,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 4
+  middleX: 0
 --- !u!114 &94163949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1533,6 +1535,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 2
+  middleX: 0
 --- !u!114 &202690918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4830,7 +4833,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lastResult: 
   logAvailableWebcams: 1
-  selectedWebcamIndex: 0
+  selectedWebcamIndex: 1
   renderTexture: {fileID: 8400000, guid: b7ec698b86ed10343ad319d3024f8e47, type: 2}
   DataCollector: {fileID: 2009713057}
 --- !u!114 &963194230
@@ -5447,6 +5450,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 0
+  middleX: 0
 --- !u!65 &1114678967
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6515,7 +6519,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1249303107
 Transform:
   m_ObjectHideFlags: 0
@@ -9045,6 +9049,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 1
+  middleX: 0
 --- !u!1 &1829989235
 GameObject:
   m_ObjectHideFlags: 0

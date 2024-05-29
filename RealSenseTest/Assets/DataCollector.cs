@@ -68,6 +68,7 @@ public class DataCollector : MonoBehaviour
     public bool isPaused = false;
     public CalibratePuckPosition calibratePuckPosition;
     public GameObject mainCamera;
+    
 
     public void incomingMultipleQRMessages(ZXing.Result[] results, int width, int height)
     {
@@ -94,8 +95,6 @@ public class DataCollector : MonoBehaviour
             //Debug.Log($"Team name: {currentTeamName} - Puck: {currentPuck}");
             foreach (var team in TeamList)
             {
-                //Debug.Log($"Saved team name: {team.teamName} / Puck's team name: {currentTeamName}");
-                //Debug.Log(!String.Equals(team.teamName, currentTeamName));
                 if (!String.Equals(team.teamName, currentTeamName) || team.playerPucks.Count == maxPucks / 2)
                 {
                     //Debug.Log("Not part of current team"); 
@@ -105,9 +104,8 @@ public class DataCollector : MonoBehaviour
                 // First puck of the team
                 if (team.playerPucks.Count == 0)
                 {
-                    Debug.Log("First puck has been registered!");
+                    //Debug.Log("First puck has been registered!");
                     CreatePuck(currentPuck, result, team);
-                    //Debug.Log("Added score!");
                 }
 
                 // Every puck after
@@ -117,8 +115,8 @@ public class DataCollector : MonoBehaviour
                     //Debug.Log($"Puck is part of team {team.teamName}");
                     if (currentPuck == puck.puckId) 
                     { 
-                        Debug.Log("Already registered puck");
-                        CheckPosition(puck, result, team);
+                        //Debug.Log("Already registered puck");
+                        CheckPosition(puck, result);
                         continue; 
                     }
                     CreatePuck(currentPuck, result, team);
@@ -137,8 +135,9 @@ public class DataCollector : MonoBehaviour
         Puck newPuck = new Puck(currentPuck, (result.ResultPoints[0].X - positionCorrection) + posXOffset, -(result.ResultPoints[0].Y - positionCorrection) + posYOffset);
         GameObject newPuckObj = Instantiate(puckPrefab, gameFieldObj.transform);
         newPuck.puckObj = newPuckObj;
+        newPuckObj.name = $"{team.teamName}: {currentPuck}";
         team.playerPucks.Add(newPuck);
-        SetPointValue(newPuck, team);
+        SetPointValue();
         registeredPucks++;
         teamOrganizer.AddTeamColor(newPuck, team);
     }
@@ -154,7 +153,7 @@ public class DataCollector : MonoBehaviour
         currentRound++;
     }
 
-    public void CheckPosition(Puck puck, ZXing.Result result, Teams team)
+    public void CheckPosition(Puck puck, ZXing.Result result)
     {
         Vector2 resultPos = new Vector2(result.ResultPoints[0].X, result.ResultPoints[0].Y);
         float xDistanceToCenter = Vector2.Distance(resultPos, Vector2.zero);
@@ -162,21 +161,45 @@ public class DataCollector : MonoBehaviour
         Vector2 correctedPos = new Vector2(resultPos.x + posXOffset, -(resultPos.y + posYOffset)) + new Vector2(1,0) * correctionFactor;
         if (puck.puckPos == correctedPos) return;
         puck.puckPos = correctedPos;
-        puck.puckObj.transform.position = new Vector3(correctedPos.x, correctedPos.y, puck.puckObj.transform.position.z);
-        SetPointValue(puck, team);
+
+        Vector3 newPos = new Vector3(correctedPos.x, correctedPos.y, puck.puckObj.transform.position.z);
+        puck.puckObj.GetComponent<PuckScript>().targetPos = newPos;
+        //puck.puckObj.transform.position = newPos;
+
+        SetPointValue();
     }
 
-    public void SetPointValue(Puck puck, Teams team)
+    public void SetPointValue()
     {
-        PuckScript puckLogic = puck.puckObj.GetComponent<PuckScript>();
-        puck.value = puckLogic.currentValue;
+        //TeamList[0] == Red
+        //TeamList[1] == Yellow
+        Vector3 team1FarthestPos = GetFarthestPosition(TeamList[0]);
+        Vector3 team2FarthestPos = GetFarthestPosition(TeamList[1]);
 
-        int currentTotal = 0;
-        foreach (Puck savedPuck in team.playerPucks)
+        //Red team pucks vs farthest yellow
+        int currentTotalT1 = 0;
+        foreach (Puck savedPuck in TeamList[0].playerPucks)
         {
-            currentTotal += savedPuck.value;
+            PuckScript puckScript = savedPuck.puckObj.GetComponent<PuckScript>();
+            if (savedPuck.puckPos.x > team2FarthestPos.x) continue;
+            //Debug.Log($"Puck {savedPuck.puckObj.name} exceeded the furthest puck of team {TeamList[0].teamName}!");
+            //Debug.Log($"Earned {puckScript.currentValue} points!");
+            currentTotalT1 += puckScript.currentValue;
         }
-        team.score = currentTotal;
+
+        //Yellow team pucks vs farthest red
+        int currentTotalT2 = 0;
+        foreach (Puck savedPuck in TeamList[1].playerPucks)
+        {
+            PuckScript puckScript = savedPuck.puckObj.GetComponent<PuckScript>();
+            if (savedPuck.puckPos.x > team1FarthestPos.x) continue;
+            //Debug.Log($"Puck {savedPuck.puckObj.name} exceeded the furthest puck of team {TeamList[1].teamName}!");
+            //Debug.Log($"Earned {puckScript.currentValue} points!");
+            currentTotalT2 += puckScript.currentValue;
+        }
+
+        TeamList[0].score = currentTotalT1;
+        TeamList[1].score = currentTotalT2;
         teamOrganizer.SendScoresToUI();
     }
 
@@ -205,5 +228,14 @@ public class DataCollector : MonoBehaviour
             team.playerPucks.Clear();
             team.score = 0;
         }
+    }
+
+    private Vector3 GetFarthestPosition(Teams team)
+    {
+        Vector3 pos = new Vector3(200, -60, 0); ;
+        foreach(Puck puck in team.playerPucks) if (puck.puckPos.x < pos.x) pos = puck.puckPos;
+
+        //Debug.Log($"{team.teamName}'s farthest position is {pos}");
+        return pos;
     }
 }

@@ -39,7 +39,7 @@ public class TeamOrganizer : MonoBehaviour
         List<Teams> teamsList = collector.TeamList;
         int Team1ScoreValue = teamsList[0].score;
         int Team2ScoreValue = teamsList[1].score;
-        Debug.Log($"{Team1ID}: {Team1ScoreValue} - {Team2ID}: {Team2ScoreValue}");
+        //Debug.Log($"{Team1ID}: {Team1ScoreValue} - {Team2ID}: {Team2ScoreValue}");
 
         Team1Score.text = Team1ScoreValue.ToString();
         Team2Score.text = Team2ScoreValue.ToString();

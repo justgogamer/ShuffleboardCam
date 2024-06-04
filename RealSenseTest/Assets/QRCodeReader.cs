@@ -53,6 +53,7 @@ public class QRCodeReader : MonoBehaviour
         lastResult = "http://www.google.com";
 
         cameraColorData = new Color32[width * height];
+
         screenRect = new Rect(0, 0, Screen.width, Screen.height);
     }
 
@@ -118,7 +119,7 @@ public class QRCodeReader : MonoBehaviour
     private void SetupWebcamTexture()
     {
         string selectedWebcamDeviceName = WebCamTexture.devices[selectedWebcamIndex].name;
-        camTexture = new WebCamTexture(selectedWebcamDeviceName);
+        camTexture = new WebCamTexture(selectedWebcamDeviceName, 2048, 1080);
     }
  
     private void PlayWebcamTexture()
@@ -135,8 +136,10 @@ public class QRCodeReader : MonoBehaviour
     public Texture2D GetTexture2dFromWebcam(WebCamTexture _WebcamTexture)
     {
         Texture2D _CamTexture2D = new Texture2D(_WebcamTexture.width, _WebcamTexture.height);
+        //Texture2D _CamTexture2D = new Texture2D(2048, 1080);
         _CamTexture2D.SetPixels32(_WebcamTexture.GetPixels32());
         _CamTexture2D.Apply(); //If you want to see the result, you need to apply the changes
+        //Debug.Log($"Width camtexture: {_CamTexture2D.width} - height: {_CamTexture2D.height}");
 
         Resources.UnloadUnusedAssets(); //Clean the memory or you will make your pc crash
 

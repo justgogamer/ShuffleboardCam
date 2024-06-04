@@ -26,6 +26,7 @@ public class Puck
     public int value;
     public GameObject puckObj;
     public string origin;
+    public bool isOut = false;
 
     public Puck(string id, float posX, float posY)
     {
@@ -164,6 +165,7 @@ public class DataCollector : MonoBehaviour
 
         Vector3 newPos = new Vector3(correctedPos.x, correctedPos.y, puck.puckObj.transform.position.z);
         puck.puckObj.GetComponent<PuckScript>().targetPos = newPos;
+        puck.isOut = puck.puckObj.GetComponent<PuckScript>().isOut;
         //puck.puckObj.transform.position = newPos;
 
         SetPointValue();
@@ -233,7 +235,7 @@ public class DataCollector : MonoBehaviour
     private Vector3 GetFarthestPosition(Teams team)
     {
         Vector3 pos = new Vector3(200, -60, 0); ;
-        foreach(Puck puck in team.playerPucks) if (puck.puckPos.x < pos.x) pos = puck.puckPos;
+        foreach(Puck puck in team.playerPucks) if (puck.puckPos.x < pos.x && !puck.isOut) pos = puck.puckPos;
 
         //Debug.Log($"{team.teamName}'s farthest position is {pos}");
         return pos;

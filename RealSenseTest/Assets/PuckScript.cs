@@ -14,6 +14,7 @@ public class PuckScript : MonoBehaviour
     private Rigidbody rb;
     public float movingSpeed = 15f;
     public Vector3 targetPos;
+    public bool isOut = false;
 
     private void Start()
     {
@@ -36,11 +37,21 @@ public class PuckScript : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         //Debug.Log("Entered trigger");
-        if (other.gameObject.layer != 3) return;
-        ValueArea valueArea = other.gameObject.GetComponent<ValueArea>();
-        
-        if (other.gameObject.name != coreScript.currentLayerName) return;
-        currentValue = valueArea.value;
+        if(other.gameObject.layer == 7)
+        {
+            isOut = true;
+            currentValue = 0;
+            return;
+        }
+
+        if (other.gameObject.layer == 3)
+        {
+            isOut = false;
+            ValueArea valueArea = other.gameObject.GetComponent<ValueArea>();
+
+            if (other.gameObject.name != coreScript.currentLayerName) return;
+            currentValue = valueArea.value;
+        }     
     }
 
     private void OnCollisionEnter(Collision collision)
